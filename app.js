@@ -7,9 +7,8 @@ const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
 
-const productRoutes = require('./api/routes/products');
-const orderRoutes = require('./api/routes/orders');
-const userRoutes = require('./api/routes/user');
+const productRoutes = require('./routes/books');
+const userRoutes = require('./routes/user');
 
 mongoose.connect(`mongodb+srv://merk:${process.env.MONGO_ATLAS_PW}@rest-api-iewsq.mongodb.net/test?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
@@ -30,8 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/products', productRoutes);
-app.use('/orders', orderRoutes);
+app.use('/books', productRoutes);
 app.use('/user', userRoutes);
 
 app.use((req, res, next) => {
