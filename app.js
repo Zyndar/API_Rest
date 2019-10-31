@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
 
-const productRoutes = require('./routes/books');
+const bookRoutes = require('./routes/books');
 const userRoutes = require('./routes/user');
 
 mongoose.connect(`mongodb+srv://merk:${process.env.MONGO_ATLAS_PW}@rest-api-iewsq.mongodb.net/test?retryWrites=true&w=majority`, {
@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/books', productRoutes);
+app.use('/books', bookRoutes);
 app.use('/user', userRoutes);
 
 app.use((req, res, next) => {
