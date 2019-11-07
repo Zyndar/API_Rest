@@ -7,6 +7,6 @@ mongoose.connect(`mongodb+srv://merk:${process.env.MONGO_ATLAS_PW}@rest-api-iews
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }, (err) => {
-    if (err) console.log(`Error connecting to database. ${err}`);
-    else app.listen(port, console.log(`API started on: http://localhost:${port}`));
+  if (err) console.log(`Error connecting to database. ${err}`);
+  else app.listen(port, console.log(`API started on: http://localhost:${port}`));
 });
