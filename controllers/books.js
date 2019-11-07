@@ -3,67 +3,147 @@ const mongoose = require('mongoose');
 const Book = require('../models/books');
 
 function getBook(req, res) {
-    if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
-        Book.find().select().exec().then((docs) => {
-            const response = {
-                count: docs.length,
-                books: docs.map((doc) => {
-                return {
-                    title: doc.title,
-                    ISBN: doc.ISBN,
-                    description: doc.description,
-                    date: doc.date,
-                    price: doc.price,
-                    editorial: doc.editorial,
-                    _id: doc.id,
-                    request: {
-                    type: 'GET',
-                    url: `http://localhost:3000/books/${doc._id}`,
-                    },
-                };
-                }),
+    Book.find().select().exec().then((docs) => {
+        const response = {
+            count: docs.length,
+            books: docs.map((doc) => {
+            return {
+                title: doc.title,
+                ISBN: doc.ISBN,
+                description: doc.description,
+                date: doc.date,
+                price: doc.price,
+                editorial: doc.editorial,
+                _id: doc.id,
+                request: {
+                type: 'GET',
+                url: `http://localhost:3000/books/${doc._id}`,
+                },
             };
-            if (docs.length >= 0) {
-                res.status(200).json(response);
-            } else {
-                res.status(404).json({
-                message: 'No entries found',
-                });
-            }
-            }).catch((err) => {
-            console.log(err);
-            res.status(500).json({
-                error: err,
+            }),
+        };
+        if (docs.length >= 0) {
+            res.status(200).json(response);
+        } else {
+            res.status(404).json({
+            message: 'No entries found',
             });
+        }
+        }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
         });
-    }
-    else
-    {
-        Book.find({
-            $or: [
-                { title: req.body.title },
-                { ISBN: req.body.ISBN },
-                { description: req.body.description },
-                { date: req.body.date },
-                { price: req.body.price },
-                { editorial: req.body.editorial }
-            ]}).select().exec().then((docs) => {
-                const response = {
-                    books: docs.map((doc) => {
-                        return {
-                            title: doc[0].title,
-                            ISBN: doc[0].ISBN,
-                            description: doc[0].description,
-                            date: doc[0].date,
-                            price: doc[0].price,
-                            editorial: doc[0].editorial,
-                        };
-                    }),
-                };
-        res.status(200).json(response);
-    })
-        
-    }
+    });
+}
+
+function fromTitle(req, res) {
+    Book.find( {title: req.body.title} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
+}
+function fromISBN(req, res) {
+    Book.find( {ISBN: req.body.ISBN} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
+}
+function fromDescription(req, res) {
+    Book.find( {description: req.body.description} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
+}
+function fromDate(req, res) {
+    Book.find( {date: req.body.date} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
+}
+function fromPrice(req, res) {
+    Book.find( {price: req.body.price} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
+}
+function fromEditorial(req, res) {
+    Book.find( {editorial: req.body.editorial} ).select().exec().then((book) => {
+        return res.status(200).json( {
+            title: book[0].title,
+            ISBN: book[0].ISBN,
+            description: book[0].description,
+            date: book[0].date,
+            price: book[0].price,
+            editorial: book[0].editorial,
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({
+            error: err,
+    });
+    });
 }
 
 function postBook(req, res) {
@@ -152,4 +232,10 @@ module.exports = {
     getSingleBook,
     patchBook,
     deleteBook,
+    fromTitle,
+    fromISBN,
+    fromDescription,
+    fromDate,
+    fromPrice,
+    fromEditorial,
 }

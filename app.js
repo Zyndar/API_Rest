@@ -5,15 +5,8 @@ const morgan = require('morgan');
 
 const bodyParser = require('body-parser');
 
-const mongoose = require('mongoose');
-
 const bookRoutes = require('./routes/books');
 const userRoutes = require('./routes/user');
-
-mongoose.connect(`mongodb+srv://merk:${process.env.MONGO_ATLAS_PW}@rest-api-iewsq.mongodb.net/test?retryWrites=true&w=majority`, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
