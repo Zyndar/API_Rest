@@ -1,80 +1,82 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-else-return */
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const verify = require('../middleware/verify');
+
+function getUser(req, res) {
+  User.find().select().then((docs) => {
+    const response = {
+      count: docs.length,
+      users: docs.map((doc) => ({
+        email: doc.email,
+        password: doc.password,
+        firstname: doc.firstname,
+        surname: doc.surname,
+        phonenumber: doc.phonenumber,
+        dateCreated: doc.dateCreated,
+        _id: doc.id,
+      })),
+    };
+    if (docs.length >= 0) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json({
+        message: 'No entries found',
+      });
+    }
+  })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
+}
+
+function getSpecificUser(req, res) {
+  const id = req.params.userId;
+
+  User.findById(id).exec().then((doc) => {
+    console.log(doc);
+    if (doc) {
+      res.status(200).json(doc);
+    } else {
+      res.status(404).json({ message: 'No valid entry found for provided ID' });
+    }
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ error: err });
+  });
+}
 
 function createUser(req, res) {
-  User.find({ email: req.body.email }).exec().then((user) => {
+  User.find({ email: req.body.email }).then((user) => {
     if (user.length >= 1) {
       return res.status(409).json({
         message: 'email already in use',
       });
-    } else {
-      bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-          return res.status(500).json({
-            error: err,
-          });
-        }
-        const user = new User({
-          _id: new mongoose.Types.ObjectId(),
-          email: req.body.email,
-          password: hash,
-          firstname: req.body.firstname,
-          surname: req.body.surname,
-          phonenumber: req.body.phonenumber,
-        });
-        user.save().then((result) => {
-          console.log(result);
-          res.status(201).json({
-            message: 'User created.',
-          });
-        }).catch((err) => {
-          console.log(err);
-          res.status(500).json({
-            error: err,
-          });
-        });
-      });
     }
-  }).catch();
+    const newUser = new User(req.body);
+    newUser.save((err) => {
+      if (err) return res.status(400).json({ error: 'Error creating User' });
+
+      return res.status(201).json({ message: 'User Created Successfully' });
+    });
+  });
 }
 
 function login(req, res) {
-  User.find({ email: req.body.email }).exec().then((user) => {
+  User.find({ email: req.body.email }).then((user) => {
     if (user.length < 1) {
       return res.status(401).json({
-        message: 'Authentication failed.',
+        message: 'Could not find User.',
       });
     }
-    bcrypt.compare(req.body.password, user[0].password, (err, result) => {
-      if (err) {
-        return res.status(401).json({
-          message: 'Authentication failed.',
-        });
+    user[0].comparePassWithHash(req.password, (isMatch, error) => {
+      if (error) return res.status(500).json({ error });
+      if (isMatch) {
+        return res.status(201).json({ message: 'Authentication Successful.', token: verify.createToken(req, res, req.email) });
       }
-      if (result) {
-        const token = jwt.sign( {
-          email: user[0].email,
-          userId: user[0]._id,
-        }, process.env.JWT_KEY, {
-          expiresIn: '1h',
-        });
-        return res.status(200).json({
-          message: 'Authentication Successful.',
-          token,
-        });
-      }
-      res.status(401).json({
-        message: 'Authentication failed.',
-      });
-    });
-  }).catch((err) => {
-    console.log(err);
-    res.status(500).json({
-      error: err,
+
+      return res.status(404).json({ message: 'Authentication failed.' });
     });
   });
 }
@@ -92,8 +94,28 @@ function deleteUser(req, res) {
   });
 }
 
+function patchUser(req, res) {
+  const id = req.params.userId;
+  const updateOps = {};
+  for (const ops of req.body) {
+    updateOps[ops.propName] = ops.value;
+  }
+  User.update({ _id: id }, { $set: updateOps }).then((result) => {
+    console.log(result);
+    res.status(200).json(result);
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  });
+}
+
 module.exports = {
+  getUser,
+  getSpecificUser,
   createUser,
   login,
   deleteUser,
+  patchUser,
 };

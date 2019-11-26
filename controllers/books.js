@@ -1,11 +1,9 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
 
 const Book = require('../models/books');
 
 function getBook(req, res) {
-  Book.find().select().exec().then((docs) => {
+  Book.find().select().then((docs) => {
     const response = {
       count: docs.length,
       books: docs.map((doc) => ({
@@ -173,7 +171,7 @@ function postBook(req, res) {
 
 function getSingleBook(req, res) {
   const id = req.params.bookId;
-  Book.findById(id).exec().then((doc) => {
+  Book.findById(id).then((doc) => {
     console.log(doc);
     if (doc) {
       res.status(200).json(doc);
