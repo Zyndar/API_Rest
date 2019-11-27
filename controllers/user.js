@@ -2,20 +2,18 @@ const User = require('../models/user');
 const verify = require('../middleware/verify');
 
 function getUser(req, res) {
-  User.find().select().then((docs) => {
+  User.find().then((users) => {
     const response = {
-      count: docs.length,
-      users: docs.map((doc) => ({
-        email: doc.email,
-        password: doc.password,
-        firstname: doc.firstname,
-        surname: doc.surname,
-        phonenumber: doc.phonenumber,
-        dateCreated: doc.dateCreated,
-        _id: doc.id,
+      count: users.length,
+      users: users.map((user) => ({
+        users,
+        request: {
+          type: 'GET',
+          url: `http://localhost:3000/books/${user._id}`,
+        },
       })),
     };
-    if (docs.length >= 0) {
+    if (users.length >= 0) {
       res.status(200).json(response);
     } else {
       res.status(404).json({
@@ -24,7 +22,6 @@ function getUser(req, res) {
     }
   })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
@@ -34,15 +31,13 @@ function getUser(req, res) {
 function getSpecificUser(req, res) {
   const id = req.params.userId;
 
-  User.findById(id).exec().then((doc) => {
-    console.log(doc);
+  User.findById(id).then((doc) => {
     if (doc) {
       res.status(200).json(doc);
     } else {
       res.status(404).json({ message: 'No valid entry found for provided ID' });
     }
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({ error: err });
   });
 }
@@ -82,12 +77,11 @@ function login(req, res) {
 }
 
 function deleteUser(req, res) {
-  User.remove({ _id: req.params.userId }).exec().then((result) => {
+  User.remove({ _id: req.params.userId }).then((result) => {
     res.status(200).json({
       message: 'User deleted.',
     });
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({
       error: err,
     });
@@ -101,10 +95,8 @@ function patchUser(req, res) {
     updateOps[ops.propName] = ops.value;
   }
   User.update({ _id: id }, { $set: updateOps }).then((result) => {
-    console.log(result);
     res.status(200).json(result);
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({
       error: err,
     });

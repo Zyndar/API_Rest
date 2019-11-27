@@ -9,12 +9,12 @@ router.post('/', bookController.postBook);
 
 router.get('/:bookId', bookController.getSingleBook);
 
-router.get('/title/:bookTitle', bookController.fromTitle);
-router.get('/ISBN/:bookISBN', bookController.fromISBN);
-router.get('/description/:bookDescription', bookController.fromDescription);
-router.get('/date/:bookDate', bookController.fromDate);
-router.get('/price/:bookPrice', bookController.fromPrice);
-router.get('/editorial/:bookEditorial', bookController.fromEditorial);
+router.get('/title/:title', bookController.fromTitle);
+router.get('/ISBN/:ISBN', bookController.fromISBN);
+router.get('/description/:description', bookController.fromDescription);
+router.get('/date/:date', bookController.fromDate);
+router.get('/price/:price', bookController.fromPrice);
+router.get('/editorial/:editorial', bookController.fromEditorial);
 
 router.patch('/:bookId', bookController.patchBook);
 

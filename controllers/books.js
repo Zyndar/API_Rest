@@ -1,26 +1,18 @@
-const mongoose = require('mongoose');
-
 const Book = require('../models/books');
 
 function getBook(req, res) {
-  Book.find().select().then((docs) => {
+  Book.find().then((books) => {
     const response = {
-      count: docs.length,
-      books: docs.map((doc) => ({
-        title: doc.title,
-        ISBN: doc.ISBN,
-        description: doc.description,
-        date: doc.date,
-        price: doc.price,
-        editorial: doc.editorial,
-        _id: doc.id,
+      count: books.length,
+      books: books.map((doc) => ({
+        books,
         request: {
           type: 'GET',
           url: `http://localhost:3000/books/${doc._id}`,
         },
       })),
     };
-    if (docs.length >= 0) {
+    if (books.length >= 0) {
       res.status(200).json(response);
     } else {
       res.status(404).json({
@@ -29,104 +21,60 @@ function getBook(req, res) {
     }
   })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
-
 function fromTitle(req, res) {
-  Book.find({ title: req.body.title }).select().exec().then((book) => res.status(200).json({
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { title } = req.params;
+  Book.find({ title }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
 function fromISBN(req, res) {
-  Book.find({ ISBN: req.body.ISBN }).select().exec().then((book) => res.status(200).json({
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { ISBN } = req.params;
+  Book.find({ ISBN }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
 function fromDescription(req, res) {
-  Book.find({ description: req.body.description }).select().exec().then((book) => res.status(200).json({
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { description } = req.params;
+  Book.find({ description }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
 function fromDate(req, res) {
-  Book.find({ date: req.body.date }).select().exec().then((book) => res.status(200).json( {
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { date } = req.params;
+  Book.find({ date }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
 function fromPrice(req, res) {
-  Book.find({ price: req.body.price }).select().exec().then((book) => res.status(200).json({
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { price } = req.params;
+  Book.find({ price }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
     });
 }
 function fromEditorial(req, res) {
-  Book.find({ editorial: req.body.editorial }).select().exec().then((book) => res.status(200).json({
-    title: book[0].title,
-    ISBN: book[0].ISBN,
-    description: book[0].description,
-    date: book[0].date,
-    price: book[0].price,
-    editorial: book[0].editorial,
-  }))
+  const { editorial } = req.params;
+  Book.find({ editorial }).then((book) => res.status(200).json(book))
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
       });
@@ -135,7 +83,6 @@ function fromEditorial(req, res) {
 
 function postBook(req, res) {
   const book = new Book({
-    _id: new mongoose.Types.ObjectId(),
     title: req.body.title,
     ISBN: req.body.ISBN,
     description: req.body.description,
@@ -144,16 +91,10 @@ function postBook(req, res) {
     editorial: req.body.editorial,
   });
   book.save().then((result) => {
-    console.log(result);
     res.status(201).json({
       message: 'Created book.',
       createdBook: {
-        title: req.body.title,
-        ISBN: req.body.ISBN,
-        description: req.body.description,
-        date: req.body.date,
-        price: req.body.price,
-        editorial: req.body.editorial,
+        result,
         _id: result._id,
         request: {
           type: 'POST',
@@ -162,7 +103,6 @@ function postBook(req, res) {
       },
     });
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({
       error: err,
     });
@@ -172,14 +112,12 @@ function postBook(req, res) {
 function getSingleBook(req, res) {
   const id = req.params.bookId;
   Book.findById(id).then((doc) => {
-    console.log(doc);
     if (doc) {
       res.status(200).json(doc);
     } else {
       res.status(404).json({ message: 'No valid entry found for provided ID' });
     }
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({ error: err });
   });
 }
@@ -190,11 +128,9 @@ function patchBook(req, res) {
   for (const ops of req.body) {
     updateOps[ops.propName] = ops.value;
   }
-  Book.update({ _id: id }, { $set: updateOps }).exec().then((result) => {
-    console.log(result);
+  Book.update({ _id: id }, { $set: updateOps }).then((result) => {
     res.status(200).json(result);
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({
       error: err,
     });
@@ -203,10 +139,9 @@ function patchBook(req, res) {
 
 function deleteBook(req, res) {
   const id = req.params.bookId;
-  Book.remove({ _id: id }).exec().then((result) => {
+  Book.remove({ _id: id }).then((result) => {
     res.status(200).json(result);
   }).catch((err) => {
-    console.log(err);
     res.status(500).json({
       error: err,
     });
