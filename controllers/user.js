@@ -65,7 +65,7 @@ function login(req, res) {
         message: 'Could not find User.',
       });
     }
-    user[0].comparePassWithHash(req.password, (isMatch, error) => {
+    user[0].comparePassWithHash(req.body.password, (isMatch, error) => {
       if (error) return res.status(500).json({ error });
       if (isMatch) {
         return res.status(201).json({ message: 'Authentication Successful.', token: verify.createToken(req, res, req.email) });
